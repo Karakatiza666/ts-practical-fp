@@ -1,0 +1,33 @@
+{
+  "name": "ts-practical-fp",
+  "version": "0.1.0",
+  "description": "A set of functionally oriented utils",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && tsc-alias",
+    "prepare": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Karakatiza666/ts-practical-fp.git"
+  },
+  "keywords": [
+    "typescript",
+    "fp"
+  ],
+  "author": "Karakatiza666",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Karakatiza666/ts-practical-fp/issues"
+  },
+  "homepage": "https://github.com/Karakatiza666/ts-practical-fp#readme",
+  "dependencies": {
+    "ts-binary-newtypes": "github:Karakatiza666/ts-binary-newtypes",
+    "typescript": "^4.9.5"
+  },
+  "devDependencies": {
+    "tsc-alias": "^1.8.2"
+  }
+}
