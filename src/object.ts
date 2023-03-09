@@ -42,6 +42,8 @@ export const filterObject_ = (pred: (v: unknown, k: string) => boolean) => (obj:
    return obj
 }
 
+export const isEmptyObj = (obj: object) => Object.keys(obj).length === 0
+
 export function objectAny<K extends string | number | symbol, V>
    (obj: Record<K, V>, pred: (v: V) => boolean) {
    return Object.entries<V>(obj).findIndex(([, val]) => pred(val)) !== -1

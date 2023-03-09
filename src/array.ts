@@ -38,6 +38,18 @@ export const unique = <T>(arr: T[]) => {
    }
    return result
 }
+export const uniqueOn = <T>(fn: (x: T) => string) => (arr: T[]) => {
+   const set = new Set<string>()
+   const result = [] as T[]
+   for (const e of arr) {
+      const str = fn(e)
+      if (!set.has(str)) {
+         set.add(str)
+         result.push(e)
+      }
+   }
+   return result
+}
 
 export const groupBy = <T, R = T>(array: T[], predicate: (v: T) => string, result = (v: T) => v as unknown as R) =>
    Object.entries(array.reduce((acc, value) => {
