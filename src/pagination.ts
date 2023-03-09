@@ -209,3 +209,9 @@ export function createNullishPaginator<T>(pageSize: number, getPage: (params: {p
 
    return getNextBatch
 }
+
+export function limitOffsetToPageCount(limit: number, offset: number) {
+   const page = Math.ceil((offset + 1) / limit);
+   const count = limit;
+   return { page, count };
+}
