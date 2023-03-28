@@ -1,5 +1,49 @@
 import { isHex } from "ts-binary-newtypes"
 
+// ===================================================
+export function bytesEq(a_: ArrayBuffer|ArrayBufferView, b_: ArrayBuffer|ArrayBufferView){
+   const a: ArrayBufferView = a_ instanceof ArrayBuffer ? new Uint8Array(a_, 0) : a_
+   const b: ArrayBufferView = b_ instanceof ArrayBuffer ? new Uint8Array(b_, 0) : b_
+   if (a.byteLength != b.byteLength) return false;
+   if (aligned32(a) && aligned32(b))
+     return equal32(a, b);
+   if (aligned16(a) && aligned16(b))
+     return equal16(a, b);
+   return equal8(a, b);
+}
+
+function equal8(a: ArrayBufferView, b: ArrayBufferView) {
+   const ua = new Uint8Array(a.buffer, a.byteOffset, a.byteLength);
+   const ub = new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
+   return compare(ua, ub);
+}
+function equal16(a: ArrayBufferView, b: ArrayBufferView) {
+   const ua = new Uint16Array(a.buffer, a.byteOffset, a.byteLength / 2);
+   const ub = new Uint16Array(b.buffer, b.byteOffset, b.byteLength / 2);
+   return compare(ua, ub);
+}
+function equal32(a: ArrayBufferView, b: ArrayBufferView) {
+   const ua = new Uint32Array(a.buffer, a.byteOffset, a.byteLength / 4);
+   const ub = new Uint32Array(b.buffer, b.byteOffset, b.byteLength / 4);
+   return compare(ua, ub);
+}
+
+function compare<T extends Uint8Array | Uint16Array | Uint32Array>(a: T, b: T) {
+   for (let i = a.length; -1 < i; i -= 1) {
+     if ((a[i] !== b[i])) return false;
+   }
+   return true;
+}
+
+function aligned16(a: ArrayBufferView) {
+   return (a.byteOffset % 2 === 0) && (a.byteLength % 2 === 0);
+}
+
+function aligned32(a: ArrayBufferView) {
+   return (a.byteOffset % 4 === 0) && (a.byteLength % 4 === 0);
+}
+// ===================================================
+
 export function convertBase64ToBuffer(base64Image: string) {
    // Split into two parts
    const parts = base64Image.split(';base64,');
