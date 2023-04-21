@@ -96,10 +96,10 @@ export const pushUnique = <T extends string | number | bigint | boolean | RegExp
    array.includes(item) ? array : (array.push(item), array)
 
 // Mutates original array, returns same instance
-export const upsertUniqueOn = <T>(key: (t: T) => string, item: T) => (array: T[]) => {
+export const upsertUniqueOn = <T>(key: (t: T) => string, item: T, combine: (next: T, old: T) => T = a => a) => (array: T[]) => {
    const index = array.findIndex(t => key(item) === key(t))
    if (index >= 0) {
-      array[index] = item
+      array[index] = combine(item, array[index])
    } else {
       array.push(item)
    }
@@ -109,6 +109,10 @@ export const upsertUniqueOn = <T>(key: (t: T) => string, item: T) => (array: T[]
 // // Mutates original array, returns same instance
 // export const pushUniqueOn = <T>(key: (t: T) => string, push: (t: T) => void, item: T) => (array: T[]) =>
 //    isUniqueOn(key, item, array) ? (push(item), array) : array
+export const pushUniqueOn = <T>(key: (t: T) => string, item: T) => (array: T[]) => {
+   const k = key(item)
+   return array.find(item => key(item) === k) ? array : (array.push(item), array)
+}
 
 // // Mutates original array, returns same instance
 // export const pushUniqueWith = <T>(item: T) => (array: T[], f: (item: T) => void, key: (t: T) => string) => {
@@ -120,7 +124,15 @@ export const upsertUniqueOn = <T>(key: (t: T) => string, item: T) => (array: T[]
 // export const upsertSortedWith<T>(key: (t: T) => string, combine: (next: T, old: T) => T, items: T | T[]) => (ts: T[]) => {
 
 // }
- 
+
+export const unionOn = <T>(key: (t: T) => string, combine: (next: T, old: T) => T, as: T[], bs: T[]) => {
+   const res = bs.slice()
+   for (const a of as) {
+      upsertUniqueOn(key, a, combine)(res)
+   }
+   return res
+}
+
 export const binarySearch = <T, K>(
    compare: (a: K, b: K) => number,
    key: (t: T) => K,
