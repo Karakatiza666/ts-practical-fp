@@ -96,9 +96,15 @@ export const pushUnique = <T extends string | number | bigint | boolean | RegExp
    array.includes(item) ? array : (array.push(item), array)
 
 // Mutates original array, returns same instance
-export const upsertUniqueOn = <T>(key: (t: T) => string, item: T) => (array: T[]) =>
-   array.find(t => key(item) == key(t)) ? array.map(t => (key(item) == key(t) ? item : t)) : (array.push(item), array)
-   // (elem => (elem ? (elem = item) : array.push(item), array))(array.find(t => key(item) == key(t)))
+export const upsertUniqueOn = <T>(key: (t: T) => string, item: T) => (array: T[]) => {
+   const index = array.findIndex(t => key(item) === key(t))
+   if (index >= 0) {
+      array[index] = item
+   } else {
+      array.push(item)
+   }
+   return array
+}
 
 // // Mutates original array, returns same instance
 // export const pushUniqueOn = <T>(key: (t: T) => string, push: (t: T) => void, item: T) => (array: T[]) =>
@@ -109,6 +115,113 @@ export const upsertUniqueOn = <T>(key: (t: T) => string, item: T) => (array: T[]
 //    console.log(array)
 //    return array.find(t => key(t) == key(item)) ? array : (f(item), array)
 // }
+
+// // Assumes passed array is already sorted by key function
+// export const upsertSortedWith<T>(key: (t: T) => string, combine: (next: T, old: T) => T, items: T | T[]) => (ts: T[]) => {
+
+// }
+ 
+export const binarySearch = <T, K>(
+   compare: (a: K, b: K) => number,
+   key: (t: T) => K,
+   arr: T[],
+   target: K,
+   startAt = 0,
+   endAt = arr.length - 1
+ ) => {
+   let startIndex = startAt
+   let endIndex = endAt
+   let index = -1
+   let prevIndex = -1
+ 
+   while (startIndex <= endIndex) {
+      const midIndex = Math.floor((startIndex + endIndex) / 2)
+      const midKey = key(arr[midIndex])
+      const compareResult = compare(midKey, target)
+      
+      if (compareResult === 0) {
+         return { index: midIndex, prevIndex: midIndex }
+      } else if (compareResult > 0) {
+         endIndex = midIndex - 1
+         index = midIndex
+      } else {
+         startIndex = midIndex + 1
+         prevIndex = midIndex
+      }
+   }
+
+   return { index, prevIndex }
+}
+
+/**
+ * Assumes passed array is already sorted by key function
+ * If there are multiple new items with the same key - the order of combinations is not defined, so `combine` should be associative
+ * Mutates original array
+ * @param compare 
+ * @param key 
+ * @param combine 
+ * @param items 
+ * @returns 
+ */
+export const upsertSortedOnWith_ = <T, K>(compare: (a: K, b: K) => number, key: (t: T) => K, combine: (next: T, old: T) => T, items: T | T[], ts: T[]) => {
+   const newItems = Array.isArray(items) ? sortOn_(compare, key, items) : [items]
+   const sourceKeyList = ts.map((t) => key(t))
+   let prevIndex = -1
+
+   for (let i = 0; i < newItems.length; i++) {
+      const newItem = newItems[i]
+      const newItemKey = key(newItem)
+
+      const { index, prevIndex: nextPrevIndex } = binarySearch(
+         compare,
+         key,
+         ts,
+         newItemKey,
+         prevIndex + 1,
+         ts.length - 1
+      )
+
+      if (index !== -1 && compare(newItemKey, key(ts[index])) === 0) {
+         ts[index] = combine(newItem, ts[index])
+      } else {
+         ts.splice(nextPrevIndex + 1, 0, newItem)
+         sourceKeyList.splice(nextPrevIndex + 1, 0, newItemKey)
+      }
+
+      prevIndex = nextPrevIndex - 1 // Allow the same index be updated if newItems contains multiple elements with the same key
+   }
+
+   return ts
+}
+
+
+/**
+ * Assumes passed array is already sorted by key function
+ * If there are multiple new items with the same key - the order of combinations is not defined, so `combine` should be associative
+ * @param compare 
+ * @param key 
+ * @param combine 
+ * @param items 
+ * @returns 
+ */
+export const upsertSortedOnWith = <T, K>(compare: (a: K, b: K) => number, key: (t: T) => K, combine: (next: T, old: T) => T, items: T | T[], ts: T[]) =>
+   upsertSortedOnWith_(compare, key, combine, items, ts.slice())
+
+/**
+ * Mutates original array
+ * @param compare 
+ * @param key 
+ * @returns 
+ */
+export const sortOn_ = <T, K>(compare: (a: K, b: K) => number, key: (a: T) => K, as: T[]) => as.sort((a, b) => compare(key(a), key(b)))
+
+/**
+ * 
+ * @param compare 
+ * @param key 
+ * @returns 
+ */
+export const sortOn = <T, K>(compare: (a: K, b: K) => number, key: (a: T) => K, as: T[]) => sortOn_(compare, key, as.slice())
 
 export function includesAny (str: string, arr: string[]) {
    let regex = / /
