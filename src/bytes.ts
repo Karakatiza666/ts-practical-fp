@@ -1,4 +1,5 @@
 import { isHex } from "ts-binary-newtypes"
+import * as getRandomBytes from 'randombytes'
 
 // ===================================================
 export function bytesEq(a_: ArrayBuffer|ArrayBufferView, b_: ArrayBuffer|ArrayBufferView){
@@ -43,6 +44,34 @@ function aligned32(a: ArrayBufferView) {
    return (a.byteOffset % 4 === 0) && (a.byteLength % 4 === 0);
 }
 // ===================================================
+
+/**
+ * Not cryptographically secure
+ * @param len bytes count
+ * @returns function that takes max byte value and returns random bytes
+ */
+export const randomBytes = (len: number) => {
+   return (_max?: number) => {
+      let result = new Uint8Array(len);
+      const max = Math.max(0, Math.min(_max || 255, 255))
+      for (let i = 0; i < len; ++i) {
+         result[i] = Math.floor(Math.random() * max)
+      }
+      return result
+   }
+}
+
+/**
+ * Cryptographically secure
+ * @param len bytes count
+ * @returns function that takes max byte value and returns random bytes
+ */
+export const randomCryptoBytes = (len: number) => {
+   return (_max?: number) => {
+      const max = Math.max(0, Math.min(_max || 255, 255))
+      return ((getRandomBytes as any).default as typeof getRandomBytes)(len).map(v => v % max)
+   }
+}
 
 export function convertBase64ToBuffer(base64Image: string) {
    // Split into two parts
