@@ -10,7 +10,7 @@ export const liftP = <Args extends unknown[], R>(f: (...args: Args) => Awaited<R
 export const useP = <A>(f: (a: A) => Promise<void>) => (a: A) => f(a).then(() => a)
 export const use = <A>(f: (a: A) => void) => (a: A) => (f(a), a)
 
-export const callNonNull = <Args extends unknown[], R>(f: (...args: [...Args]) => R, ...args: { [I in keyof Args]: Args[I] | null | undefined }) => {
+export const callNonNull = <Args extends unknown[], R>(f: (...args: [...Args]) => R) => (...args: { [I in keyof Args]: Args[I] | null | undefined }) => {
    // if (args.findIndex(it => typeof it === 'undefined' || it == null) !== -1)
    if (args.findIndex(isNull) !== -1)
       return null
