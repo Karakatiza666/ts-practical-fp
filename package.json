@@ -24,8 +24,6 @@
   },
   "homepage": "https://github.com/Karakatiza666/ts-practical-fp#readme",
   "dependencies": {
-    "@types/randombytes": "^2.0.0",
-    "randombytes": "^2.1.0",
     "ts-binary-newtypes": "github:Karakatiza666/ts-binary-newtypes",
     "typescript": "^4.9.5"
   },

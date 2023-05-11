@@ -1,5 +1,5 @@
 import { isHex } from "ts-binary-newtypes"
-import * as getRandomBytes from 'randombytes'
+// import * as getRandomBytes from 'randombytes'
 
 // ===================================================
 export function bytesEq(a_: ArrayBuffer|ArrayBufferView, b_: ArrayBuffer|ArrayBufferView){
@@ -69,7 +69,9 @@ export const randomBytes = (len: number) => {
 export const randomCryptoBytes = (len: number) => {
    return (_max?: number) => {
       const max = Math.max(0, Math.min(_max || 255, 255))
-      return ((getRandomBytes as any).default as typeof getRandomBytes)(len).map(v => v % max)
+      // return ((getRandomBytes as any).default as typeof getRandomBytes)(len).map(v => v % max)
+      const bytes = new Uint8Array(len)
+      return crypto.getRandomValues(bytes).map(v => v % max)
    }
 }
 
