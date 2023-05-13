@@ -91,9 +91,26 @@ export const singleNonNull = <T>(item: T | null | undefined) => item ? [item] : 
 export const isUniqueOn = <T>(f: (t: T) => string, item: T, array: T[]) =>
    !array.find(i => f(i) == f(item))
 
-// Mutates original array, returns same instance
+/**
+ * Mutates original array, returns same instance
+ */
 export const pushUnique = <T extends string | number | bigint | boolean | RegExp | Date>(item: T) => (array: T[]) =>
    array.includes(item) ? array : (array.push(item), array)
+
+/**
+ * Push items into array, ignoring repeating elements
+ * @param items 
+ * @returns 
+ */
+export const pushUniques = <T extends string | number | bigint | boolean | RegExp | Date>(items: T[]) => (array: T[]) => {
+   const set = new Set(array)
+   for(const i of items) {
+      if (set.has(i)) continue
+      array.push(i)
+   }
+   set.clear()
+   return array
+}
 
 // Mutates original array, returns same instance
 export const upsertUniqueOn = <T>(key: (t: T) => string, item: T, combine: (next: T, old: T) => T = a => a) => (array: T[]) => {
