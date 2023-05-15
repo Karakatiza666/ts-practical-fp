@@ -1,4 +1,5 @@
 export * from 'src/array'
+export * from 'src/bigint'
 export * from 'src/bytes'
 export * from 'src/classify'
 export * from 'src/error'
