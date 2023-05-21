@@ -7,3 +7,6 @@ export type StrictUnionHelper<T, TAll> =
 
 export type StrictUnion<T> = StrictUnionHelper<T, T>
 export type OptionalIntersection<T> = StrictUnionHelper<T, T>
+
+
+export type ArgumentTypes<F> = F extends (...args: infer A) => unknown ? A : never;

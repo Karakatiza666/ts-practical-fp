@@ -1,4 +1,5 @@
 import { isHex } from "ts-binary-newtypes"
+import { reduceStream } from "./stream";
 // import * as getRandomBytes from 'randombytes'
 
 // ===================================================
@@ -140,3 +141,21 @@ export const megabytes = (n: number) => Math.floor(n * 1024 * 1024)
 
 export const showKib = (n: number) => Math.ceil(n / 1024)
 export const showMib = (n: number) => Math.ceil(n / 1024 / 1024)
+
+export const collectBytes = (acc: Uint8Array[], cur: Uint8Array) =>
+   (acc.push(cur), acc)
+
+export const aggregateBytes = (acc: Uint8Array[]) => {
+   const totalLength = acc.reduce((total, chunk) => total + chunk.length, 0)
+   const result = new Uint8Array(totalLength);
+   let offset = 0
+ 
+   for (const chunk of acc) {
+      result.set(chunk, offset)
+      offset += chunk.length
+   }
+
+   return result
+}
+
+export const readStreamAsUint8Array = (s: ReadableStream<Uint8Array>) => reduceStream(s, collectBytes, aggregateBytes, [])
