@@ -61,8 +61,12 @@ export const pickRecursiveIgnore = <E>(getIterator: () => () => Promise<E | null
             // console.log('pickInput elem already used!')
             continue
          }
-         result = await getResult(elem, (ignore, f, end) => (used.add(key), impl(ignore, f, end)))
+         
+         result = await getResult(elem, (ignore, f, end) => {
+            console.log('used utxos: ', used.add(key))
+            return (used.add(key), impl(ignore, f, end))})
          if (!isValidResult(result)) {
+            console.log('used utxo deleted : ', key)
             used.delete(key)
          }
       }
