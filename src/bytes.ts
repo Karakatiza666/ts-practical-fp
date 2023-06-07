@@ -1,4 +1,4 @@
-import { isHex } from "ts-binary-newtypes"
+import { type Hex, isHex } from "ts-binary-newtypes"
 import { reduceStream } from "./stream";
 // import * as getRandomBytes from 'randombytes'
 
@@ -159,3 +159,11 @@ export const aggregateBytes = (acc: Uint8Array[]) => {
 }
 
 export const readStreamAsUint8Array = (s: ReadableStream<Uint8Array>) => reduceStream(s, collectBytes, aggregateBytes, [])
+
+export function littleEndianToInteger(hex: Hex) {
+   const bytes: string[] = []
+   for (let i = hex.length - 2; i >= 0; i -= 2) {
+      bytes.push(hex.slice(i, i + 2))
+   }
+   return BigInt("0x" + hex)
+}

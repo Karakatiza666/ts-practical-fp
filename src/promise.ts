@@ -13,3 +13,11 @@ export const parallelObj = async<T extends Record<string, Promise<unknown>>>(obj
 // Can't name this `then` because it causes conflict with Svelte or Ionic
 export const thendo = <T extends unknown[], R>(f: (...args: T) => R ) => (...t: { -readonly [P in keyof T]: Promise<T[P]>; }) =>
    Promise.all(t).then(async (t): Promise<Awaited<R>> => { return await f(...t) })
+
+export function fulfilledPromise<T>(result: PromiseSettledResult<T>): T | undefined {
+   if (result.status === 'fulfilled') {
+      return result.value
+   } else {
+      return undefined
+   }
+}

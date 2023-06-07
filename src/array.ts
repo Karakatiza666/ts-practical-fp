@@ -13,7 +13,12 @@ export const zipWithDefault = <A, B, R>(f: (a: A, b: B) => R, dA: A, dB: B) => (
    return res
 }
 
-// First elem - pred is true, second - false
+/**
+ * 
+ * @param arr 
+ * @param predicate 
+ * @returns [is true, is false]
+ */
 export const partition = <T>(
    arr: T[],
    predicate: (v: T, i: number, ar: T[]) => boolean
