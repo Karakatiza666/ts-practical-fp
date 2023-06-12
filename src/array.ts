@@ -277,3 +277,7 @@ export const singleton = <T>(t: T | T[] | undefined) => Array.isArray(t) ? t : n
 
 export const andArr = (arr: boolean[]) => arr.every(b => b)
 export const orArr = (arr: boolean[]) => !!arr.find(b => b)
+
+export const removeSpliceAll = <T>(arr: T[], pred: (t: T) => boolean) => {
+   arr.splice(0, arr.length, ...arr.filter(t => !pred(t)))
+}
