@@ -63,10 +63,10 @@ export const pickRecursiveIgnore = <E>(getIterator: () => () => Promise<E | null
          }
          
          result = await getResult(elem, (ignore, f, end) => {
-            console.log('used utxos: ', used.add(key))
+            // console.log('used utxos: ', used.add(key))
             return (used.add(key), impl(ignore, f, end))})
          if (!isValidResult(result)) {
-            console.log('used utxo deleted : ', key)
+            // console.log('used utxo deleted : ', key)
             used.delete(key)
          }
       }
@@ -78,17 +78,24 @@ export const pickRecursiveIgnore = <E>(getIterator: () => () => Promise<E | null
    return impl
 }
 
-// // Pick inputs with pickNext function while it returns true
-// Allows to pick as many inputs with the same algorithm as needed
-// example:
-// `async (input, pickInput, pickNext) => { ... `
-// when current input doesn't fit:
-// `return null`
-// when input found, and need to find another input:
-// `return pickInput([], pickNext)`
-// when it's time to continue to the next parts of the transaction:
-// `return pickInput([], ...)` or `return complete(builder)`
-export function pickAnotherElement<E, Result>(
+/**
+ * Pick inputs with pickNext function while it returns true
+ * Allows to pick as many inputs with the same algorithm as needed
+ * If all the elements are exhausted - the used elements are reset, search results should be reverted and search continues from the beginning
+ * NOTE: this behaviour may be never wanted
+ * 
+ * example:
+ * `async (input, pickInput, pickNext) => { ... `
+ * when current input doesn't fit:
+ * `return null`
+ * when input found, and need to find another input:
+ * `return pickInput([], pickNext)`
+ * when it's time to continue to the next parts of the transaction:
+ * `return pickInput([], ...)` or `return complete(builder)`
+ * @param pickNext 
+ * @returns 
+ */
+export function pickAnotherElementPure<E, Result>(
    // ctx: { protocolParams: ProtocolParams },
    // inputPicker: PickRecursiveIgnore<E, Result>,
    pickNext: (input: E, pickInput: PickRecursiveIgnore<E, Result>, pickAnother: PickRecursiveIgnore_<E, Result> /* () => Promise<Result | null>*/) => Promise<Result | null>,
@@ -98,6 +105,26 @@ export function pickAnotherElement<E, Result>(
    const pickAnother: PickRecursiveIgnore_<E, Result> = async (input, inputPicker) => {
       // return pickNext(input, () => inputPicker([], picker))
       return pickNext(input, inputPicker, pickAnother)
+   }
+   return pickAnother
+}
+
+/**
+ * Pick inputs with pickNext function while it returns true
+ * Allows to pick as many inputs with the same algorithm as needed
+ * If all the elements are exhausted - specified error message is returned
+ * @param pickNext
+ * @param onError
+ * @returns 
+ */
+export function pickAnotherElement<E, Result extends Error | unknown>(
+   pickNext: (input: E, pickInput: PickRecursiveIgnore<E, Result>, pickAnother: PickRecursiveIgnore_<E, Result>) => Promise<Result | null>,
+   onError: string | null
+): PickRecursiveIgnore_<E, Result> {   
+   const pickAnother: PickRecursiveIgnore_<E, Result> = async (input, inputPicker) => {
+      return pickNext(input, inputPicker,
+         () => Promise.resolve(onError === null ? null : new Error(onError) ) as Promise<Result | null>
+      )
    }
    return pickAnother
 }
