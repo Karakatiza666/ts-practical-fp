@@ -119,11 +119,15 @@ export function pickAnotherElementPure<E, Result>(
  */
 export function pickAnotherElement<E, Result extends Error | unknown>(
    pickNext: (input: E, pickInput: PickRecursiveIgnore<E, Result>, pickAnother: PickRecursiveIgnore_<E, Result>) => Promise<Result | null>,
-   onError: string | null
+   errorMsg: string | Error | null
 ): PickRecursiveIgnore_<E, Result> {   
    const pickAnother: PickRecursiveIgnore_<E, Result> = async (input, inputPicker) => {
       return pickNext(input, inputPicker,
-         () => Promise.resolve(onError === null ? null : new Error(onError) ) as Promise<Result | null>
+         () => Promise.resolve(
+            errorMsg === null ? null :
+            typeof errorMsg === 'string' ? new Error(errorMsg) :
+            errorMsg
+         ) as Promise<Result | null>
       )
    }
    return pickAnother
