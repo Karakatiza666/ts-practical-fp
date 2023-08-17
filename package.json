@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc && tsc-alias",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "prepack": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -24,7 +25,7 @@
   },
   "homepage": "https://github.com/Karakatiza666/ts-practical-fp#readme",
   "dependencies": {
-    "ts-binary-newtypes": "github:Karakatiza666/ts-binary-newtypes",
+    "ts-binary-newtypes": "https://github.com/Karakatiza666/ts-binary-newtypes",
     "typescript": "^4.9.5"
   },
   "devDependencies": {
